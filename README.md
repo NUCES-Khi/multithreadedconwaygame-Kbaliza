@@ -1,4 +1,5 @@
 # ConwayGameOfLife-Using-Threads
+_______________________________________________________________________________
 
 1.	Use a two-dimensional array to represent the grid of cells, and implement the rules of the game using conditional statements:
 -	Initialize the grid of cells with random values.
