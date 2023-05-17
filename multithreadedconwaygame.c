@@ -1,14 +1,4 @@
-/**
- * @defgroup   MAIN main
- *
- * @brief      This file implements main. Please Comment you code
- *
- * @author     Khush Bakht Aliza - 21K-4714
- * @date       2023
- */
- 
- 
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 
@@ -52,7 +42,6 @@ int count_neighbors(int row, int col) {
 
 // Update the grid for the next generation
 void* update_row(void* arg) {
-    
     int row = *((int*) arg);
     pthread_mutex_lock(&mutex);
     for (int col = 0; col < cols; col++) {
@@ -67,61 +56,80 @@ void* update_row(void* arg) {
     pthread_exit(NULL);
 }
 
-
 int main() {
     int generations;
+    
     printf("Enter the number of rows: ");
     scanf("%d", &rows);
     printf("Enter the number of columns: ");
     scanf("%d", &cols);
+    
     grid = (int**) malloc(rows * sizeof(int*));
     new_grid = (int**) malloc(rows * sizeof(int*));
+    
     for (int i = 0; i < rows; i++) {
         grid[i] = (int*) malloc(cols * sizeof(int));
         new_grid[i] = (int*) malloc(cols * sizeof(int));
     }
+    
     int tid[rows];
+    
     for (int i = 0; i < rows; i++) {
         tid[i] = i;
     }
+    
     printf("Enter the initial grid:\n");
+    
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             scanf("%d", &grid[i][j]);
         }
     }
+    
     printf("Enter the number of generations: ");
     scanf("%d", &generations);
+    
     pthread_t threads[rows];
-    pthread_mutex_init(&mutex, 0);
+    pthread_mutex_init(&mutex, NULL);
+    
     printf("Initial grid:\n");
     print_grid(grid);
+    
     for (int i = 0; i < generations; i++) {
         init_grid();
+        
         for (int j = 0; j < rows; j++) {
-pthread_create(&threads[j], NULL, update_row, &tid[j]);
-}
-    // Wait for all threads to finish
-    for (int j = 0; j < rows; j++) {
-        pthread_join(threads[j], NULL);
-    }
-    
-    // Copy new grid to old grid
-    for (int j = 0; j < rows; j++) {
-        for (int k = 0; k < cols; k++) {
-            grid[j][k] = new_grid[j][k];
+            pthread_create(&threads[j], NULL, update_row, &tid[j]);
         }
+        
+        // Wait for all threads to finish
+        for (int j = 0; j < rows; j++) {
+            pthread_join(threads[j], NULL);
+        }
+        
+        // Copy new grid to old grid
+        for (int j = 0; j < rows; j++) {
+            for (int k = 0; k < cols; k++) {
+                grid[j][k] = new_grid[j][k];
+            }
+        }
+        
+        // Print the updated grid
+        printf("Generation %d:\n", i + 1);
+        print_grid(grid);
     }
     
-    // Print the updated grid
-    printf("Generation %d:\n", i + 1);
-    print_grid(grid);
+    // Destroy the mutex
+    pthread_mutex_destroy(&mutex);
+    
+    // Free allocated memory
+    for (int i = 0; i < rows; i++) {
+        free(grid[i]);
+        free(new_grid[i]);
+    }
+    
+    free(grid);
+    free(new_grid);
+    
+    return 0;
 }
-
-// Destroy the mutex
-pthread_mutex_destroy(&mutex);
-free(grid);
-free(new_grid);
-return 0;
-}
-
